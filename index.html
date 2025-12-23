@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para ti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #050505; 
+            background-image: 
+                radial-gradient(white 1px, transparent 1.5px),
+                radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1.5px);
+            background-size: 60px 60px, 110px 110px;
+            background-position: 0 0, 30px 30px;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.5s ease;
+        }
+
+        /* --- MODO AMOR (FONDO NEGRO CON CORAZONES BLANCOS) --- */
+        body.pixel-heart-mode {
+            background-color: #000000 !important; /* Fondo Negro */
+            /* He cambiado el color dentro del código SVG del fondo.
+               Antes era fill='%23ff1493' (rosa), ahora es fill='%23ffffff' (blanco).
+            */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") !important;
+            background-size: 50px 50px !important;
+            animation: heartMove 3s linear infinite;
+        }
+
+        @keyframes heartMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        /* CUANDO ESTAMOS EN MODO AMOR, OCULTAMOS EL CALENDARIO */
+        body.pixel-heart-mode .calendar-container,
+        body.pixel-heart-mode .main-title,
+        body.pixel-heart-mode .shooting-stars-container {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        /* --- MENSAJE SECRETO "TE AMO BOBA" --- */
+        .secret-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Great Vibes', cursive;
+            font-size: 6rem;
+            color: #d63031; /* El texto sigue rojo para que resalte */
+            text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 50;
+            text-align: center;
+            width: 100%;
+        }
+
+        .secret-message.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* Estrellas fugaces */
+        .shooting-stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; transition: opacity 0.5s; }
+        .shooting-star { position: absolute; top: 50%; left: 50%; height: 2px; background: linear-gradient(-45deg, #fffadd, rgba(0, 0, 255, 0)); filter: drop-shadow(0 0 6px #fffadd); animation: tail 3000ms ease-in-out infinite, shooting 3000ms ease-in-out infinite; opacity: 0; }
+        .shooting-star::before { content: ''; position: absolute; top: calc(50% - 1px); right: 0; height: 2px; background: linear-gradient(-45deg, rgba(0, 0, 255, 0), #fffadd, rgba(0, 0, 255, 0)); transform: translateX(50%) rotateZ(45deg); border-radius: 100%; animation: shining 3000ms ease-in-out infinite; }
+        @keyframes shooting { 0% { transform: translateX(0) translateY(0) rotateZ(45deg); } 100% { transform: translateX(-800px) translateY(800px) rotateZ(45deg); } }
+        @keyframes tail { 0% { width: 0; opacity: 0; } 30% { width: 150px; opacity: 1; } 100% { width: 0; opacity: 0; } }
+        @keyframes shining { 0% { width: 0; } 50% { width: 30px; } 100% { width: 0; } }
+        .shooting-star:nth-child(1) { top: 0%; left: 80%; animation-delay: 2s; } .shooting-star:nth-child(1)::before { animation-delay: 2s; }
+        .shooting-star:nth-child(2) { top: 10%; left: 100%; animation-delay: 5s; } .shooting-star:nth-child(2)::before { animation-delay: 5s; }
+        .shooting-star:nth-child(3) { top: -10%; left: 50%; animation-delay: 8.5s; } .shooting-star:nth-child(3)::before { animation-delay: 8.5s; }
+        .shooting-star:nth-child(4) { top: 30%; left: 120%; animation-delay: 12s; } .shooting-star:nth-child(4)::before { animation-delay: 12s; }
+
+        h1.main-title {
+            font-family: 'Great Vibes', cursive; color: #f1c40f; font-size: 5rem;
+            margin: 0 0 30px 0; text-align: center; font-weight: normal;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.3), 0 0 20px rgba(241, 196, 15, 0.2);
+            line-height: 1.1; position: relative; z-index: 2; transition: opacity 0.5s;
+        }
+
+        .calendar-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
+            gap: 15px; width: 100%; max-width: 1000px; position: relative; z-index: 2;
+            padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.02);
+            transition: opacity 0.5s;
+        }
+
+        .card-small {
+            width: 100%; aspect-ratio: 1 / 1.1; cursor: pointer; position: relative;
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d); border-radius: 10px;
+            border: 2px solid #f1c40f; display: flex; justify-content: center; align-items: center;
+            color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); font-size: 2rem;
+            font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: transform 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card-small:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 0 15px rgba(255, 255, 255, 0.4); background: linear-gradient(135deg, #aab7b8, #95a5a6); }
+        .card-small::after { content: '★'; font-size: 1rem; position: absolute; bottom: 5px; color: #f1c40f; }
+        .card-small.opened { opacity: 0.4; background: #444; border-color: #666; box-shadow: none; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); display: flex; justify-content: center; align-items: center;
+            z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px); padding: 20px; box-sizing: border-box;
+        }
+        .overlay.active { opacity: 1; visibility: visible; }
+
+        .card-focus { width: 300px; height: 400px; background-color: transparent; perspective: 1000px; position: relative; }
+        .card-focus-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .card-focus.flipped .card-focus-inner { transform: rotateY(180deg); }
+        .focus-front, .focus-back {
+            position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden;
+            backface-visibility: hidden; border-radius: 20px; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; border: 4px solid #f1c40f;
+        }
+        .focus-front { background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; font-size: 5rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .focus-back { background-color: #fff; color: #333; transform: rotateY(180deg); padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .focus-back img { width: 90%; height: auto; max-height: 180px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .focus-back p { font-size: 1.1rem; line-height: 1.4; }
+        .close-hint { margin-top: 15px; font-size: 0.8rem; color: #777; font-style: italic; }
+
+        @media (max-width: 600px) {
+            h1.main-title { font-size: 3.5rem; margin-bottom: 20px; }
+            .calendar-container { gap: 8px; padding: 10px; }
+            .card-small { font-size: 1.5rem; }
+            .card-focus { width: 85vw; height: auto; aspect-ratio: 3/4; max-height: 80vh; }
+            .focus-front { font-size: 4rem; }
+            .focus-back p { font-size: 1rem; }
+            .secret-message { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body id="main-body">
+
+    <div id="love-message" class="secret-message">Te amo boba</div>
+
+    <div class="shooting-stars-container">
+        <span class="shooting-star"></span><span class="shooting-star"></span>
+        <span class="shooting-star"></span><span class="shooting-star"></span>
+    </div>
+
+    <h1 class="main-title">Calendario de Adviento</h1>
+    <div class="calendar-container" id="calendar-grid"></div>
+
+    <div class="overlay" id="overlay" onclick="closeModal()">
+        <div class="card-focus" id="focus-card" onclick="event.stopPropagation()">
+            <div class="card-focus-inner">
+                <div class="focus-front" id="focus-front-content">1</div>
+                <div class="focus-back">
+                    <img id="focus-img" src="" alt="Sorpresa">
+                    <p id="focus-text">Mensaje</p>
+                    <div class="close-hint" style="margin-top:auto">Toca fuera para cerrar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('calendar-grid');
+        const overlay = document.getElementById('overlay');
+        const focusCard = document.getElementById('focus-card');
+        const focusFrontContent = document.getElementById('focus-front-content');
+        const focusImg = document.getElementById('focus-img');
+        const focusText = document.getElementById('focus-text');
+        const mainBody = document.getElementById('main-body');
+        const loveMessage = document.getElementById('love-message');
+
+        let currentOpenDay = null;
+
+        // =================================================================
+        //  /// --- ZONA EDITABLE (DATOS) --- ///
+        // =================================================================
+        
+        const datosDelCalendario = {
+            1: { mensaje: "La primera se desespera.", imagen: "https://i.pinimg.com/474x/d6/b5/d5/d6b5d50af738993f2c3bdf46b84b2401.jpg" },
+            2: { mensaje: "Te fuiste troleada el primer dia jejeje, tenia que hacerlo perdoname. Te amo mucho boba", imagen: "https://i.pinimg.com/1200x/2c/fc/4c/2cfc4cf5a2887d149422f93546bf5dd1.jpg" },
+            3: { mensaje: "Te voy a cuidar como el principito cuida a su rosita :3 ", imagen: "https://blog.erikstore.com/wp-content/uploads/2025/01/La-Rosa.jpg" },
+            4: { mensaje: "Seguire cuidandote mientras duermes.... de maneras cuestionables pero cuidandote siempre 😎", imagen: "durmiendo.png" },
+            5: { mensaje: "Quiero seguir haciendo tonteras contigo porque me la paso bonito junto a ti", imagen: "setsi.png" },
+            6: { mensaje: "Espero que podamos seguir durmiendo juntitos muchas veces mas ", imagen: "acostaditos.png" },
+            7: { mensaje: "Como dije, te cuidare mientras duermes y yo me rio al lado por como estas durmiendo jeje 🤑🤫🤓", imagen: "durmiendo2.png" },
+            8: { mensaje: "El jueguito que tanto querias!!! yeiii", imagen: "https://ih1.redbubble.net/image.5008736551.1147/flat,750x,075,f-pad,750x1000,f8f8f8.jpg" },
+            9: { mensaje: "Quisiera pasar mas momentitos asi juntitos, yo tiradito y tu haciendome cariñito hablando de cualquier cosa", imagen: "tirao.png" },
+            10: { mensaje: "Me gusta que me mandes fotitos con tu snoopy", imagen: "snoopy.png" },
+            11: { mensaje: "Bueno hablando de snoopy, quiero que sepas que siempre que lo veo, tu eres lo primero que se viene a mi mente y en lo cuanto te gusta", imagen: "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Snoopy_Peanuts.png/250px-Snoopy_Peanuts.png" },
+            12: { mensaje: "Ojala pasar mas 18 junto a ti y hacer mas cositas juntitos", imagen: "18.png" },
+            13: { mensaje: "Me gusta cuando salimos juntos al mall o a donde sea y poder tomar fotitos random de ti", imagen: "random.png" },
+            14: { mensaje: "Quiero que sigas haciendome comiditas porque te quedan muy ricas y me gustan mucho :D", imagen: "cocina.png" },
+            15: { mensaje: "Me encanta comer chancherias contigo, hablamos puras tonteras mientras comemos y son momentos agradables", imagen: "cerdos.png" },
+            16: { mensaje: "Como te decia, somos unos cerdos para comer", imagen: "cerdos2.png" },
+            17: { mensaje: "Me haces cositas muy lindas las cuales yo valoro mucho aunque sea malo demostrandolo ", imagen: "recuerdito.png" },
+            18: { mensaje: "Te ries de puras weas (yo tambien ndskdns)", imagen: "xD.png" },
+            19: { mensaje: "Recuerdito de cuando fuimos a la SOFO pal 18", imagen: "sept.png" },
+            20: { mensaje: "Nuestro hijo que vive conmigo y duerme al ladito mio, él me recuerda siempre a ti", imagen: "hijo.png" },
+            21: { mensaje: "Espero salir a comer muchas veces mas contigo y probar cositas distintas juntitos", imagen: "comidita.png" },
+            22: { mensaje: "Muchas veces creo que te lo he dicho, pero por si se te olvida, me gustan muchos tus ojitos ", imagen: "ojitos.png" },
+            23: { mensaje: "Hablando de ojitos.... /Those Eyes/ Esta canción me gusta mucho y me recuerda a ti ", imagen: "https://i.pinimg.com/736x/4c/2c/6b/4c2c6b2c76fd0c3269ac09d0fe474cb3.jpg" },
+            24: { mensaje: "Ya casi es navidad miamor, la primera juntos aunque no juntos fisicamente, estamos juntitos como pareja y espero que estemos juntitos por muchos años mas y pasemos mas navidades juntos", imagen: "https://img.freepik.com/premium-photo/festive-anime-couple-relaxes-cozy-pajamas-by-christmas-tree_864588-34132.jpg" },
+            25: {mensaje: "¡FELIZ NAVIDAD MIAMOR! Tu eres mi mejor regalo y lo mejor que me pudo haber pasado este año <3 ", imagen: "25.png" }
+        };
+
+        // =================================================================
+
+        for (let i = 1; i <= 25; i++) {
+            const card = document.createElement('div');
+            card.className = 'card-small';
+            card.innerHTML = `${i}`;
+            card.onclick = function() { openModal(i, this); };
+            container.appendChild(card);
+        }
+
+        function openModal(dayNumber, smallCardElement) {
+            currentOpenDay = dayNumber;
+            focusFrontContent.innerText = dayNumber;
+            
+            const datosDia = datosDelCalendario[dayNumber];
+            if (datosDia) {
+                focusText.innerText = datosDia.mensaje;
+                focusImg.src = datosDia.imagen;
+            } else {
+                focusText.innerText = "¡Sorpresa!";
+                focusImg.src = "https://placehold.co/300x300?text=Sin+Datos";
+            }
+
+            overlay.classList.add('active');
+            smallCardElement.classList.add('opened');
+
+            setTimeout(() => {
+                focusCard.classList.add('flipped');
+                
+                if (dayNumber === 25) {
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#f1c40f', '#e74c3c', '#ffffff'],
+                        zIndex: 10000
+                    });
+                }
+            }, 50);
+        }
+
+        function closeModal() {
+            focusCard.classList.remove('flipped');
+            setTimeout(() => {
+                overlay.classList.remove('active');
+
+                if (currentOpenDay === 25) {
+                    mainBody.classList.add('pixel-heart-mode');
+                    loveMessage.classList.add('show');
+
+                    setTimeout(() => {
+                        mainBody.classList.remove('pixel-heart-mode');
+                        loveMessage.classList.remove('show');
+                    }, 5000);
+                }
+                currentOpenDay = null;
+            }, 300);
+        }
+    </script>
+</body>
+</html>
